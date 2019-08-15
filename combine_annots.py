@@ -20,7 +20,11 @@ def concat_single_chr(ld_list,chrom,outfile):
     li = list() # list of dfs
     for i in range(len(lddf)):
         lddir = lddf.ix[i,'Dir']
+        num = lddf.ix[i,'Num_annots']
+        name = lddf.ix[i,'Name']
         df = pd.read_csv(lddir+chrom+'.annot.gz',delim_whitespace=True)
+        if num==1:
+            df.rename(columns={'ANNOT':name},inplace=True)
         if lddf.ix[i,'Thin'] == 'T':
             li.append(df.iloc[:,:])
         elif lddf.ix[i,'Thin'] == 'F':

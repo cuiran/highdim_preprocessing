@@ -18,15 +18,34 @@ def concat_chr(file_prefix,outfile):
 def concat_single_chr(ld_list,chrom,outfile):
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
-    for i in range(len(lddf)):
-        lddir = lddf.iloc[i,0]
+    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.l2.ldscore.gz',delim_whitespace=True)
+    if lddf.ix[0,'Num_annots']==1:
+        firstdf.rename(columns={'L2':lddf.ix[0,'Name']},inplace=True)
+    li.append(firstdf)
+    mli = list() # list of M files
+    mli.append(pd.read_csv(lddf.ix[0,'Dir']+chrom+'.l2.M',delim_whitespace=True,header=None))
+    m550li = list() # list of M_5_50 files
+    m550li.append(pd.read_csv(lddf.ix[0,'Dir']+chrom+'.l2.M_5_50',delim_whitespace=True,header=None))
+    for i in range(1,len(lddf)):
+        lddir = lddf.ix[i,'Dir']
+        num = lddf.ix[i,'Num_annots']
+        name = lddf.ix[i,'Name']
+        print('Reading in ldscores for '+name)
         df = pd.read_csv(lddir+chrom+'.l2.ldscore.gz',delim_whitespace=True)
+        if num == 1:
+            df.rename(columns={'L2':name},inplace=True)
         li.append(df.iloc[:,3:])
-        print(lddir)
-    allld = np.concatenate(li,axis=1)
-    f = h5py.File(outfile,'w')
-    f.create_dataset('dataset',data=allld)
-    f.close()
+        print('Reading in M file for '+name)
+        mli.append(pd.read_csv(lddir+chrom+'.l2.M',delim_whitespace=True,header=None))
+        print('Reading in M_5_50 file for '+name)
+        m550li.append(pd.read_csv(lddir+chrom+'.l2.M_5_50',delim_whitespace=True,header=None))
+    print('Concatenating {} LD scores'.format(len(li)))
+    allld = pd.concat(li,axis=1)
+    allld.to_csv(outfile+'.'+chrom+'.l2.ldscore.gz',sep='\t',index=False,compression='gzip')
+    allm = pd.concat(mli,axis=1)
+    allm.to_csv(outfile+'.'+chrom+'.l2.M',sep='\t',index=False,header=False)
+    allm550 = pd.concat(m550li,axis=1)
+    allm550.to_csv(outfile+'.'+chrom+'.l2.M_5_50',sep='\t',index=False,header=False)
     return 
 
 def get_rs(fprefix,fsuffix):
@@ -67,7 +86,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--concat_chr',action='store_true')
     parser.add_argument('--ldfiles')
-    parser.add_argument('--outfile')
+    parser.add_argument('--outfile',help="output prefix not including dot")
     parser.add_argument('--chrom')
     parser.add_argument('--ld_list')
     parser.add_argument('--combine_onechr',action='store_true')
