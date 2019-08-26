@@ -18,26 +18,25 @@ def concat_chr(file_prefix,outfile):
 def concat_single_chr(ld_list,chrom,outfile):
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
-    for i in range(len(lddf)):
+    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot',delim_whitespace=True)
+    if lddf.ix[0,'Num_annots']==1: 
+        firstdf.rename(columns={'ANNOT':lddf.ix[0,'Name']},inplace=True)
+    li.append(firstdf)
+    for i in range(1,len(lddf)):
         lddir = lddf.ix[i,'Dir']
         num = lddf.ix[i,'Num_annots']
         name = lddf.ix[i,'Name']
-        df = pd.read_csv(lddir+chrom+'.annot.gz',delim_whitespace=True)
+        print('Reading in annotations for '+name)
+        df = pd.read_csv(lddir+chrom+'.annot',delim_whitespace=True)
         if num==1:
             df.rename(columns={'ANNOT':name},inplace=True)
-        if lddf.ix[i,'Thin'] == 'T':
+        if lddf.ix[i,'Thin'] == True:
             li.append(df.iloc[:,:])
-        elif lddf.ix[i,'Thin'] == 'F':
+        elif lddf.ix[i,'Thin'] == False:
             li.append(df.iloc[:,4:])
-        print(lddir)
-        print(df.iloc[:,4:].shape)
-    allann = np.concatenate(li,axis=1)
+    allann = pd.concat(li,axis=1)
     print(allann.shape)
-    #f = h5py.File(outfile,'w')
-    #f.create_dataset('dataset',data=allld)
-    #f.close()
-    df = pd.DataFrame(data=allann,columns=range(allann.shape[1]))
-    df.to_csv(outfile,header=False,index=False,sep='\t',compression='gzip')
+    allann.to_csv(outfile+'.'+chrom+'.annot.gz',index=False,sep='\t',compression='gzip')
     return 
 
 def corr(args):
