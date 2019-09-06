@@ -51,6 +51,7 @@ def corr(args):
         df = pd.read_csv(annfname,delim_whitespace=True,header=None)
         if all(x in df.columns for x in ['CHR','BP','SNP','CM']):
             df.drop(['CHR','BP','SNP','CM'],axis=1,inplace=True)
+        print('Dataframe has {} rows and {} columns'.format(df.shape[0],df.shape[1]))
         d = np.array(df.iloc[:,:])
         anns.append(d)
     ann_matrix = np.concatenate(anns,axis=0)
