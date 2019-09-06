@@ -48,7 +48,7 @@ def corr(args):
         chrom = str(i)
         print('chromosome '+chrom)
         annfname = annot_prefix+chrom+'.annot.gz'
-        df = pd.read_csv(annfname,delim_whitespace=True,header=None)
+        df = pd.read_csv(annfname,delim_whitespace=True)
         if all(x in df.columns for x in ['CHR','BP','SNP','CM']):
             df.drop(['CHR','BP','SNP','CM'],axis=1,inplace=True)
         print('Dataframe has {} rows and {} columns'.format(df.shape[0],df.shape[1]))
