@@ -49,6 +49,8 @@ def corr(args):
         print('chromosome '+chrom)
         annfname = annot_prefix+chrom+'.annot.gz'
         df = pd.read_csv(annfname,delim_whitespace=True,header=None)
+        if all(x in df.columns for x in ['CHR','BP','SNP','CM']):
+            df.drop(['CHR','BP','SNP','CM'],axis=1,inplace=True)
         d = np.array(df.iloc[:,:])
         anns.append(d)
     ann_matrix = np.concatenate(anns,axis=0)
