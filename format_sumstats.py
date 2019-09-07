@@ -16,19 +16,16 @@ def formatBOLTss(ss_fname,N,output_prefix,path_to_ldsc):
     Resulting formatted summary statistics should have ['SNP','A1','A2','Z','N']
     '''
     # remove SNP column
-    temp_fname = ss_fname+'.temp'
-    f = open(temp_fname,"w")
-    subprocess.call(['cut','-f1-1,3-',ss_fname],stdout=f)
-    f.close()
     # use munge_sumstats to format sumstats
     subprocess.call(['python',path_to_ldsc+'munge_sumstats.py',
-    '--sumstats',temp_fname,
+    '--sumstats',ss_fname,
     '--N',N,
     '--out',output_prefix,
     '--p','P_LINREG',
     '--a1','ALLELE1',
     '--a2','ALLELE0',
-    '--snp','v'])
+    '--snp','v',
+    '--ignore','SNP'])
     return
 
 if __name__=='__main__':
