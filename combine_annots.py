@@ -18,7 +18,7 @@ def concat_chr(file_prefix,outfile):
 def concat_single_chr(ld_list,chrom,outfile):
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
-    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot',delim_whitespace=True)
+    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
     if lddf.ix[0,'Num_annots']==1: 
         firstdf.rename(columns={'ANNOT':lddf.ix[0,'Name']},inplace=True)
     li.append(firstdf)
@@ -27,7 +27,7 @@ def concat_single_chr(ld_list,chrom,outfile):
         num = lddf.ix[i,'Num_annots']
         name = lddf.ix[i,'Name']
         print('Reading in annotations for '+name)
-        df = pd.read_csv(lddir+chrom+'.annot',delim_whitespace=True)
+        df = pd.read_csv(lddir+chrom+'.annot.gz',delim_whitespace=True)
         if num==1:
             df.rename(columns={'ANNOT':name},inplace=True)
         if lddf.ix[i,'Thin'] == True:
