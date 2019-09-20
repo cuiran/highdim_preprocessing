@@ -35,7 +35,7 @@ def concat_single_chr(ld_list,chrom,outfile,bim):
         if num==1:
             df.rename(columns={'ANNOT':name},inplace=True)
         if lddf.ix[i,'Thin'] == True:
-            li.append(df.iloc[:,:])
+            li.append(df)
         elif lddf.ix[i,'Thin'] == False:
             li.append(df.iloc[:,4:])
     allann = pd.concat(li,axis=1)
