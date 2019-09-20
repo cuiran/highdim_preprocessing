@@ -15,12 +15,16 @@ def concat_chr(file_prefix,outfile):
     f.close()
     return
 
-def concat_single_chr(ld_list,chrom,outfile):
+def concat_single_chr(ld_list,chrom,outfile,bim):
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
     firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
     if lddf.ix[0,'Num_annots']==1: 
         firstdf.rename(columns={'ANNOT':lddf.ix[0,'Name']},inplace=True)
+    if lddf.ix[0,'Thin']==True:
+        bimdf = pd.read_csv(bim+chrom+'.bim',delim_whitespace=True,header=None,usecols=[0,1,2,3])
+        bimdf.columns = ['CHR','SNP','CM','BP']
+        firstdf = pd.concat([bimdf,firstdf],axis=1)
     li.append(firstdf)
     for i in range(1,len(lddf)):
         lddir = lddf.ix[i,'Dir']
@@ -70,11 +74,12 @@ if __name__ == '__main__':
     parser.add_argument('--combine_onechr',action='store_true')
     parser.add_argument('--corr',action='store_true')
     parser.add_argument('--annot_prefix')
+    parser.add_argument('--bim')
     args = parser.parse_args()
 
     if args.concat_chr:
         concat_chr(args.annotfiles,args.outfile)
     elif args.combine_onechr:
-        concat_single_chr(args.annot_list,args.chrom,args.outfile)
+        concat_single_chr(args.annot_list,args.chrom,args.outfile,args.bim)
     elif args.corr:
         corr(args)
