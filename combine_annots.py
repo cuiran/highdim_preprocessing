@@ -16,6 +16,7 @@ def concat_chr(file_prefix,outfile):
     return
 
 def concat_single_chr(ld_list,chrom,outfile,bim):
+    pdb.set_trace()
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
     firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
@@ -40,6 +41,12 @@ def concat_single_chr(ld_list,chrom,outfile,bim):
             li.append(df.iloc[:,4:])
     allann = pd.concat(li,axis=1)
     print(allann.shape)
+    if allann.shape[0]!=bimdf.shape[0]:
+        print('{} SNPs in combined file, whereas {} SNPs in bim file'.format(allann.shape[0],bimdf.shape[0]))
+        sys.exit(1)
+    if allann.shape[1]<lddf.shape[1]:
+        print('There should be at least {} columns in the combined df'.format(lddf.shape[1]))
+        sys.exit(1)
     allann.to_csv(outfile+'.'+chrom+'.annot.gz',index=False,sep='\t',compression='gzip')
     return 
 
