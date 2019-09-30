@@ -39,7 +39,10 @@ def concat_single_chr(ld_list,chrom,outfile,bim):
         elif lddf.ix[i,'Thin'] == False:
             li.append(df.iloc[:,4:])
     allann = pd.concat(li,axis=1)
-    print(allann.shape)
+    nsnps,nannots = allann.shape
+    nannots -= 4
+    if nsnps != bimdf.shape[0] or nannots != lddf['Num_annots'].values.sum():
+        raise ValueError("Either number of SNPs {} in combined dataframe does not equal to number of SNPs {} in bim file, or number of annotations {} in combined dataframe does not equal to the number of annotations {} indicated in annotcts file".format(nsnps,bimdf.shape[0],nannots,lddf['Num_annots'].values.sum()))
     allann.to_csv(outfile+'.'+chrom+'.annot.gz',index=False,sep='\t',compression='gzip')
     return 
 
