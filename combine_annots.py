@@ -16,6 +16,7 @@ def concat_chr(file_prefix,outfile):
     return
 
 def concat_single_chr(ld_list,chrom,outfile,bim):
+    pdb.set_trace()
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
     firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
