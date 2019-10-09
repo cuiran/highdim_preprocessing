@@ -31,14 +31,14 @@ def concat_single_chr(ld_list,chrom,outfile,bim):
         lddir = lddf.ix[i,'Dir']
         num = lddf.ix[i,'Num_annots']
         name = lddf.ix[i,'Name']
-        print('Reading in annotations for '+name)
+        print('Reading in {} annotations for {}'.format(num,name))
         fname = lddir+chrom+'.annot.gz'
         if num==1:
             df = pd.read_csv(fname,delim_whitespace=True,usecols=['ANNOT'])
             df.rename(columns={'ANNOT':name},inplace=True)
         else:
-            cols = pd.read_csv(fname, nrows=1).columns
-            df = pd.read_csv(fname, usecols=cols[-num:])
+            cols = pd.read_csv(fname, nrows=1).columns.tolist()
+            df = pd.read_csv(fname, usecols=cols[-num:],delim_whitespace=True)
         li.append(df)
     allann = pd.concat(li,axis=1)
     nsnps,nannots = allann.shape
