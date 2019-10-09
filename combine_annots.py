@@ -18,26 +18,28 @@ def concat_chr(file_prefix,outfile):
 def concat_single_chr(ld_list,chrom,outfile,bim):
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
-    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
     if lddf.ix[0,'Num_annots']==1: 
+        firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True,usecols=['ANNOT'])
         firstdf.rename(columns={'ANNOT':lddf.ix[0,'Name']},inplace=True)
-    if lddf.ix[0,'Thin']==True:
-        bimdf = pd.read_csv(bim+chrom+'.bim',delim_whitespace=True,header=None,usecols=[0,1,2,3])
-        bimdf.columns = ['CHR','SNP','CM','BP']
-        firstdf = pd.concat([bimdf,firstdf],axis=1)
+    else:
+        raise ValueError('First annotation has multiple annotations')
+    bimdf = pd.read_csv(bim+chrom+'.bim',delim_whitespace=True,header=None,usecols=[0,1,2,3])
+    bimdf.columns = ['CHR','SNP','CM','BP']
+    firstdf = pd.concat([bimdf,firstdf],axis=1)
     li.append(firstdf)
     for i in range(1,len(lddf)):
         lddir = lddf.ix[i,'Dir']
         num = lddf.ix[i,'Num_annots']
         name = lddf.ix[i,'Name']
         print('Reading in annotations for '+name)
-        df = pd.read_csv(lddir+chrom+'.annot.gz',delim_whitespace=True)
+        fname = lddir+chrom+'.annot.gz'
         if num==1:
+            df = pd.read_csv(fname,delim_whitespace=True,usecols=['ANNOT'])
             df.rename(columns={'ANNOT':name},inplace=True)
-        if lddf.ix[i,'Thin'] == True:
-            li.append(df)
-        elif lddf.ix[i,'Thin'] == False:
-            li.append(df.iloc[:,4:])
+        else:
+            cols = pd.read_csv(fname, nrows=1).columns
+            df = pd.read_csv(fname, usecols=cols[-num:])
+        li.append(df)
     allann = pd.concat(li,axis=1)
     nsnps,nannots = allann.shape
     nannots -= 4
