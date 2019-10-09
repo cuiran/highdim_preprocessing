@@ -37,7 +37,7 @@ def concat_single_chr(ld_list,chrom,outfile,bim):
             df = pd.read_csv(fname,delim_whitespace=True,usecols=['ANNOT'])
             df.rename(columns={'ANNOT':name},inplace=True)
         else:
-            cols = pd.read_csv(fname, nrows=1).columns.tolist()
+            cols = pd.read_csv(fname, nrows=1,delim_whitespace=True).columns.tolist()
             df = pd.read_csv(fname, usecols=cols[-num:],delim_whitespace=True)
         li.append(df)
     allann = pd.concat(li,axis=1)
