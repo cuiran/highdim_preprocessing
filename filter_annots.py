@@ -24,7 +24,7 @@ def filter_annots(annot_list,chrom,annot_bim,target_bim,output_prefix):
     bimdf_filt = pd.read_csv(target_bim+chrom+'.bim',usecols=[1],delim_whitespace=True,header=None)
     bimdf_filt.columns=['SNP']
     snps = bimdf_filt['SNP'].tolist()
-    print('There are {} SNPs in the filtered annotation'.format(len(snps)))
+    print('There will be {} SNPs in the filtered annotation'.format(len(snps)))
     # process every annotation in the list
     list_df = pd.read_csv(annot_list,delim_whitespace=True)
     for i in range(len(list_df)):
@@ -40,7 +40,11 @@ def filter_annots(annot_list,chrom,annot_bim,target_bim,output_prefix):
             annot_df.set_index('SNP',inplace=True)
             annot_filt = annot_df.loc[snps,:]
             if not thin:
-                annot_filt.reset_index(inplace=True)     
+                annot_filt.reset_index(inplace=True)  
+            if annot_filt.shape[0]!=len(snps):
+                raise ValueError('There should be {} SNPs in the filtered dataframe, but there are {}'.format(len(snps),annot_filt.shape[0]))
+            if annot_df.shape[1]!=annot_filt.shape[1]:
+                raise ValueError('Original annotation dataframe has {} columns, new dataframe has {} columns'.format(annot_df.shape[1],annot_filt.shape[1]))   
             annot_filt.to_csv(output_prefix+name+'.'+chrom+'.annot.gz',sep='\t',index=False,compression='gzip') 
     return
 

@@ -16,37 +16,35 @@ def concat_chr(file_prefix,outfile):
     return
 
 def concat_single_chr(ld_list,chrom,outfile,bim):
-    pdb.set_trace()
     lddf = pd.read_csv(ld_list,delim_whitespace=True)
     li = list() # list of dfs
-    firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True)
     if lddf.ix[0,'Num_annots']==1: 
+        firstdf = pd.read_csv(lddf.ix[0,'Dir']+chrom+'.annot.gz',delim_whitespace=True,usecols=['ANNOT'])
         firstdf.rename(columns={'ANNOT':lddf.ix[0,'Name']},inplace=True)
-    if lddf.ix[0,'Thin']==True:
-        bimdf = pd.read_csv(bim+chrom+'.bim',delim_whitespace=True,header=None,usecols=[0,1,2,3])
-        bimdf.columns = ['CHR','SNP','CM','BP']
-        firstdf = pd.concat([bimdf,firstdf],axis=1)
+    else:
+        raise ValueError('First annotation has multiple annotations')
+    bimdf = pd.read_csv(bim+chrom+'.bim',delim_whitespace=True,header=None,usecols=[0,1,2,3])
+    bimdf.columns = ['CHR','SNP','CM','BP']
+    firstdf = pd.concat([bimdf,firstdf],axis=1)
     li.append(firstdf)
     for i in range(1,len(lddf)):
         lddir = lddf.ix[i,'Dir']
         num = lddf.ix[i,'Num_annots']
         name = lddf.ix[i,'Name']
-        print('Reading in annotations for '+name)
-        df = pd.read_csv(lddir+chrom+'.annot.gz',delim_whitespace=True)
+        print('Reading in {} annotations for {}'.format(num,name))
+        fname = lddir+chrom+'.annot.gz'
         if num==1:
+            df = pd.read_csv(fname,delim_whitespace=True,usecols=['ANNOT'])
             df.rename(columns={'ANNOT':name},inplace=True)
-        if lddf.ix[i,'Thin'] == True:
-            li.append(df)
-        elif lddf.ix[i,'Thin'] == False:
-            li.append(df.iloc[:,4:])
+        else:
+            cols = pd.read_csv(fname, nrows=1,delim_whitespace=True).columns.tolist()
+            df = pd.read_csv(fname, usecols=cols[-num:],delim_whitespace=True)
+        li.append(df)
     allann = pd.concat(li,axis=1)
-    print(allann.shape)
-    if allann.shape[0]!=bimdf.shape[0]:
-        print('{} SNPs in combined file, whereas {} SNPs in bim file'.format(allann.shape[0],bimdf.shape[0]))
-        sys.exit(1)
-    if allann.shape[1]<lddf.shape[1]:
-        print('There should be at least {} columns in the combined df'.format(lddf.shape[1]))
-        sys.exit(1)
+    nsnps,nannots = allann.shape
+    nannots -= 4
+    if nsnps != bimdf.shape[0] or nannots != lddf['Num_annots'].values.sum():
+        raise ValueError("Either number of SNPs {} in combined dataframe does not equal to number of SNPs {} in bim file, or number of annotations {} in combined dataframe does not equal to the number of annotations {} indicated in annotcts file".format(nsnps,bimdf.shape[0],nannots,lddf['Num_annots'].values.sum()))
     allann.to_csv(outfile+'.'+chrom+'.annot.gz',index=False,sep='\t',compression='gzip')
     return 
 
