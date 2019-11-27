@@ -24,9 +24,7 @@ def formatBOLTss(ss_fname,N,output_prefix,path_to_ldsc):
     '--out',output_prefix,
     '--p','P_LINREG',
     '--a1','ALLELE1',
-    '--a2','ALLELE0',
-    '--snp','v',
-    '--ignore','SNP'])
+    '--a2','ALLELE0'])
     return
 
 def formatSAIGEss(ss_fname,N,output_prefix,path_to_ldsc):
@@ -49,8 +47,7 @@ def formatSAIGEss(ss_fname,N,output_prefix,path_to_ldsc):
     '--p','p.value',
     '--a1','Allele2',
     '--a2','Allele1',
-    '--snp','v',
-    '--ignore','SNPID'])
+    '--snp','SNPID'])
     return
 
 if __name__=='__main__':
